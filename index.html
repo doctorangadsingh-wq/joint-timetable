@@ -815,13 +815,18 @@
   }
 
   function startListeners() {
-    // Events listener
+    // Events listener — sort in JS to avoid Firestore index requirement
     const evRef = collection(db, "events");
-    unsubEvents = onSnapshot(query(evRef, orderBy("date"), orderBy("time")), (snap) => {
+    unsubEvents = onSnapshot(evRef, (snap) => {
       events = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      events.sort((a,b) => a.date.localeCompare(b.date) || (a.time||'').localeCompare(b.time||''));
       renderCalendar();
       renderUpcoming();
       renderManage();
+    }, (err) => {
+      console.error("Firestore error:", err);
+      showBanner();
+      loadLocalFallback();
     });
 
     // Presets listener
@@ -829,6 +834,8 @@
     unsubPresets = onSnapshot(prRef, (snap) => {
       presets = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       renderPresets();
+    }, (err) => {
+      console.error("Presets error:", err);
     });
   }
 
