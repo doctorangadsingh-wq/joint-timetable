@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Joint Timetable 💑</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --work: #ef4444;
+    --work-light: #fee2e2;
+    --padel: #22c55e;
+    --padel-light: #dcfce7;
+    --personal: #3b82f6;
+    --personal-light: #dbeafe;
+    --joint: #a855f7;
+    --joint-light: #f3e8ff;
+    --angad: #f97316;
+    --nina: #ec4899;
+    --bg: #fafaf8;
+    --card: #ffffff;
+    --border: #e5e7eb;
+    --text: #1a1a2e;
+    --muted: #6b7280;
+    --radius: 16px;
+    --shadow: 0 4px 24px rgba(0,0,0,0.08);
+    --shadow-hover: 0 8px 32px rgba(0,0,0,0.14);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  .app-header {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    padding: 18px 20px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.3);
+  }
+
+  .app-title {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 1.35rem;
+    color: #fff;
+    letter-spacing: -0.5px;
+  }
+
+  .app-title span { color: #f97316; }
+
+  .header-pills {
+    display: flex;
+    gap: 6px;
+  }
+
+  .person-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    font-family: 'Nunito', sans-serif;
+    letter-spacing: 0.3px;
+  }
+
+  .badge-angad { background: rgba(249,115,22,0.2); color: #fb923c; border: 1px solid rgba(249,115,22,0.3); }
+  .badge-nina { background: rgba(236,72,153,0.2); color: #f472b6; border: 1px solid rgba(236,72,153,0.3); }
+
+  /* ── NAV ── */
+  .nav-bar {
+    display: flex;
+    background: #fff;
+    border-bottom: 2px solid var(--border);
+    position: sticky;
+    top: 62px;
+    z-index: 99;
+  }
+
+  .nav-btn {
+    flex: 1;
+    padding: 14px 8px;
+    border: none;
+    background: transparent;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 0.82rem;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    letter-spacing: 0.3px;
+  }
+
+  .nav-btn .nav-icon { font-size: 1.2rem; }
+  .nav-btn.active { color: var(--text); border-bottom: 3px solid #f97316; }
+  .nav-btn:hover:not(.active) { color: var(--text); background: var(--bg); }
+
+  /* ── VIEWS ── */
+  .view { display: none; padding: 16px; max-width: 480px; margin: 0 auto; }
+  .view.active { display: block; }
+
+  /* ── SECTION TITLE ── */
+  .section-title {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 1.1rem;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* ── CALENDAR ── */
+  .calendar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  .cal-nav-btn {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    width: 36px;
+    height: 36px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .cal-nav-btn:hover { border-color: #f97316; background: #fff7ed; }
+
+  .cal-month-label {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 1.15rem;
+  }
+
+  .calendar-grid {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    border: 1.5px solid var(--border);
+  }
+
+  .cal-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    background: #1a1a2e;
+  }
+
+  .cal-weekday {
+    text-align: center;
+    padding: 8px 4px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.7);
+    letter-spacing: 0.5px;
+  }
+
+  .cal-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0;
+  }
+
+  .cal-day {
+    min-height: 52px;
+    padding: 5px 4px 4px;
+    border-right: 1px solid #f3f4f6;
+    border-bottom: 1px solid #f3f4f6;
+    cursor: pointer;
+    transition: background 0.15s;
+    position: relative;
+  }
+
+  .cal-day:hover { background: #f9fafb; }
+  .cal-day.empty { background: #fafafa; cursor: default; }
+  .cal-day.today .day-num { background: #f97316; color: #fff; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; }
+  .cal-day.selected { background: #fff7ed; }
+
+  .day-num {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 0.8rem;
+    color: var(--text);
+    margin-bottom: 3px;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .cal-day.empty .day-num { color: #d1d5db; }
+
+  .dot-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+    margin-top: 2px;
+  }
+
+  .event-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* ── DAY EVENTS PANEL ── */
+  .day-panel {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    border: 1.5px solid var(--border);
+    padding: 16px;
+    margin-top: 14px;
+    display: none;
+  }
+
+  .day-panel.visible { display: block; }
+
+  .day-panel-title {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 1rem;
+    margin-bottom: 12px;
+    color: var(--muted);
+  }
+
+  /* ── EVENT CARD ── */
+  .event-card {
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    border-left: 4px solid transparent;
+    position: relative;
+    transition: box-shadow 0.2s;
+  }
+
+  .event-card:hover { box-shadow: var(--shadow-hover); }
+
+  .event-card.work { background: var(--work-light); border-left-color: var(--work); }
+  .event-card.padel { background: var(--padel-light); border-left-color: var(--padel); }
+  .event-card.personal { background: var(--personal-light); border-left-color: var(--personal); }
+  .event-card.joint { background: var(--joint-light); border-left-color: var(--joint); }
+
+  .event-card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .event-title {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 0.92rem;
+  }
+
+  .event-meta {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    margin-top: 5px;
+    flex-wrap: wrap;
+  }
+
+  .event-chip {
+    padding: 2px 9px;
+    border-radius: 20px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    font-family: 'Nunito', sans-serif;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+  }
+
+  .chip-work { background: var(--work); color: #fff; }
+  .chip-padel { background: var(--padel); color: #fff; }
+  .chip-personal { background: var(--personal); color: #fff; }
+  .chip-joint { background: var(--joint); color: #fff; }
+  .chip-angad { background: var(--angad); color: #fff; }
+  .chip-nina { background: var(--nina); color: #fff; }
+  .chip-joint-person { background: #a855f7; color: #fff; }
+
+  .event-time {
+    font-size: 0.75rem;
+    color: var(--muted);
+    font-weight: 600;
+  }
+
+  .event-notes {
+    margin-top: 6px;
+    font-size: 0.78rem;
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  .event-delete-btn {
+    background: none;
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+    opacity: 0.4;
+    transition: opacity 0.15s;
+    padding: 0 0 0 4px;
+    line-height: 1;
+  }
+
+  .event-delete-btn:hover { opacity: 1; }
+
+  /* ── UPCOMING ── */
+  .upcoming-date-group { margin-bottom: 18px; }
+
+  .upcoming-date-label {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 0.78rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+    padding-left: 4px;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 48px 20px;
+    color: var(--muted);
+  }
+
+  .empty-state .emoji { font-size: 2.5rem; margin-bottom: 10px; }
+  .empty-state p { font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 0.95rem; }
+
+  /* ── ADD EVENT FORM ── */
+  .form-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    border: 1.5px solid var(--border);
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+
+  .form-label {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 0.8rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .form-group { margin-bottom: 16px; }
+
+  .form-input {
+    width: 100%;
+    padding: 11px 14px;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    transition: border-color 0.15s;
+    background: var(--bg);
+    color: var(--text);
+  }
+
+  .form-input:focus {
+    outline: none;
+    border-color: #f97316;
+    background: #fff;
+  }
+
+  .seg-group {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .seg-btn {
+    flex: 1;
+    min-width: 70px;
+    padding: 9px 8px;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    background: var(--bg);
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+  }
+
+  .seg-btn:hover { border-color: #d1d5db; }
+
+  .seg-btn.active-work { background: var(--work-light); border-color: var(--work); color: var(--work); }
+  .seg-btn.active-padel { background: var(--padel-light); border-color: var(--padel); color: var(--padel); }
+  .seg-btn.active-personal { background: var(--personal-light); border-color: var(--personal); color: var(--personal); }
+  .seg-btn.active-angad { background: #fff7ed; border-color: var(--angad); color: var(--angad); }
+  .seg-btn.active-nina { background: #fdf2f8; border-color: var(--nina); color: var(--nina); }
+  .seg-btn.active-joint { background: var(--joint-light); border-color: var(--joint); color: var(--joint); }
+
+  .preset-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    background: var(--bg);
+    border-radius: 10px;
+    border: 2px solid var(--border);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .preset-toggle:hover { border-color: #f97316; }
+
+  .toggle-switch {
+    width: 38px;
+    height: 22px;
+    background: #d1d5db;
+    border-radius: 11px;
+    position: relative;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+
+  .toggle-switch.on { background: #f97316; }
+
+  .toggle-switch::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #fff;
+    top: 3px;
+    left: 3px;
+    transition: left 0.2s;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  }
+
+  .toggle-switch.on::after { left: 19px; }
+
+  .toggle-label {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+  }
+
+  .submit-btn {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #f97316, #ef4444);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+    box-shadow: 0 4px 14px rgba(249,115,22,0.35);
+  }
+
+  .submit-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(249,115,22,0.45); }
+  .submit-btn:active { transform: translateY(0); }
+
+  /* ── PRESETS ── */
+  .presets-section { margin-bottom: 20px; }
+
+  .preset-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .preset-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 12px;
+    border-radius: 20px;
+    border: 2px solid var(--border);
+    background: var(--card);
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .preset-pill:hover { border-color: #f97316; background: #fff7ed; }
+
+  .preset-pill-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .preset-delete {
+    font-size: 0.85rem;
+    opacity: 0.4;
+    margin-left: 2px;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .preset-delete:hover { opacity: 1; }
+
+  /* ── MANAGE VIEW ── */
+  .filter-row {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+
+  .filter-btn {
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 2px solid var(--border);
+    background: var(--card);
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .filter-btn.active-filter { border-color: #f97316; background: #fff7ed; color: #c2410c; }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #1a1a2e;
+    color: #fff;
+    padding: 12px 22px;
+    border-radius: 30px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    opacity: 0;
+    transition: all 0.3s;
+    z-index: 200;
+    white-space: nowrap;
+  }
+
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ── FIREBASE WARNING ── */
+  .firebase-banner {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    border: 2px solid #f59e0b;
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    line-height: 1.5;
+  }
+
+  .firebase-banner strong { color: #92400e; display: block; margin-bottom: 4px; font-size: 0.88rem; }
+
+  /* ── LOADING ── */
+  .loading-spinner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+    color: var(--muted);
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    gap: 10px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner { width: 20px; height: 20px; border: 3px solid #e5e7eb; border-top-color: #f97316; border-radius: 50%; animation: spin 0.8s linear infinite; }
+
+  /* ── DATE INPUTS ROW ── */
+  .date-time-row { display: flex; gap: 10px; }
+  .date-time-row .form-input { flex: 1; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 380px) {
+    .seg-btn { font-size: 0.72rem; padding: 8px 4px; }
+    .app-title { font-size: 1.1rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="app-header">
+  <div class="app-title">Joint <span>Timetable</span> 💑</div>
+  <div class="header-pills">
+    <div class="person-badge badge-angad">Angad</div>
+    <div class="person-badge badge-nina">Nina</div>
+  </div>
+</div>
+
+<!-- NAV -->
+<div class="nav-bar">
+  <button class="nav-btn active" onclick="showView('calendar')" id="nav-calendar">
+    <span class="nav-icon">📅</span>CALENDAR
+  </button>
+  <button class="nav-btn" onclick="showView('upcoming')" id="nav-upcoming">
+    <span class="nav-icon">⏰</span>UPCOMING
+  </button>
+  <button class="nav-btn" onclick="showView('add')" id="nav-add">
+    <span class="nav-icon">➕</span>ADD
+  </button>
+  <button class="nav-btn" onclick="showView('manage')" id="nav-manage">
+    <span class="nav-icon">🗂</span>MANAGE
+  </button>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ════════════════════════════════ CALENDAR VIEW ════════════════════════════════ -->
+<div class="view active" id="view-calendar">
+
+  <div id="firebase-banner-cal"></div>
+
+  <div class="calendar-header">
+    <button class="cal-nav-btn" onclick="changeMonth(-1)">‹</button>
+    <div class="cal-month-label" id="cal-month-label">April 2026</div>
+    <button class="cal-nav-btn" onclick="changeMonth(1)">›</button>
+  </div>
+
+  <div class="calendar-grid">
+    <div class="cal-weekdays">
+      <div class="cal-weekday">Mon</div>
+      <div class="cal-weekday">Tue</div>
+      <div class="cal-weekday">Wed</div>
+      <div class="cal-weekday">Thu</div>
+      <div class="cal-weekday">Fri</div>
+      <div class="cal-weekday">Sat</div>
+      <div class="cal-weekday">Sun</div>
+    </div>
+    <div class="cal-days" id="cal-days"></div>
+  </div>
+
+  <div class="day-panel" id="day-panel">
+    <div class="day-panel-title" id="day-panel-title"></div>
+    <div id="day-events"></div>
+  </div>
+
+</div>
+
+<!-- ════════════════════════════════ UPCOMING VIEW ════════════════════════════════ -->
+<div class="view" id="view-upcoming">
+  <div class="section-title">⏰ Upcoming Events</div>
+  <div id="upcoming-list">
+    <div class="loading-spinner"><div class="spinner"></div>Loading...</div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════ ADD EVENT VIEW ════════════════════════════════ -->
+<div class="view" id="view-add">
+
+  <div id="firebase-banner-add"></div>
+
+  <!-- PRESETS -->
+  <div class="presets-section">
+    <div class="section-title">⚡ Presets</div>
+    <div class="preset-pills" id="preset-pills">
+      <div style="color:var(--muted);font-size:0.8rem;font-family:'Nunito',sans-serif;padding:8px 0;">No presets yet — add one below!</div>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <div class="section-title" style="margin-bottom:18px;">✍️ New Event</div>
+
+    <div class="form-group">
+      <label class="form-label">Event Title</label>
+      <input class="form-input" id="ev-title" type="text" placeholder="e.g. Padel match, GP clinic...">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Whose event?</label>
+      <div class="seg-group" id="person-seg">
+        <button class="seg-btn" data-val="Angad" onclick="selectSeg('person','Angad',this)">🧑 Angad</button>
+        <button class="seg-btn" data-val="Nina" onclick="selectSeg('person','Nina',this)">👩 Nina</button>
+        <button class="seg-btn" data-val="Joint" onclick="selectSeg('person','Joint',this)">💑 Joint</button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Category</label>
+      <div class="seg-group" id="cat-seg">
+        <button class="seg-btn" data-val="work" onclick="selectSeg('cat','work',this)">💼 Work</button>
+        <button class="seg-btn" data-val="padel" onclick="selectSeg('cat','padel',this)">🎾 Padel</button>
+        <button class="seg-btn" data-val="personal" onclick="selectSeg('cat','personal',this)">🏠 Personal</button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Date & Time</label>
+      <div class="date-time-row">
+        <input class="form-input" id="ev-date" type="date">
+        <input class="form-input" id="ev-time" type="time">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Notes (optional)</label>
+      <input class="form-input" id="ev-notes" type="text" placeholder="Any extra info...">
+    </div>
+
+    <div class="form-group">
+      <div class="preset-toggle" onclick="togglePresetSave()">
+        <div class="toggle-switch" id="preset-toggle-switch"></div>
+        <span class="toggle-label">⚡ Save as preset for future use</span>
+      </div>
+    </div>
+
+    <button class="submit-btn" onclick="submitEvent()">Add Event 🎉</button>
+  </div>
+
+</div>
+
+<!-- ════════════════════════════════ MANAGE VIEW ════════════════════════════════ -->
+<div class="view" id="view-manage">
+  <div class="section-title">🗂 All Events</div>
+
+  <div class="filter-row" id="filter-row">
+    <button class="filter-btn active-filter" onclick="setFilter('all',this)">All</button>
+    <button class="filter-btn" onclick="setFilter('Angad',this)">Angad</button>
+    <button class="filter-btn" onclick="setFilter('Nina',this)">Nina</button>
+    <button class="filter-btn" onclick="setFilter('Joint',this)">Joint</button>
+    <button class="filter-btn" onclick="setFilter('work',this)">Work</button>
+    <button class="filter-btn" onclick="setFilter('padel',this)">Padel</button>
+    <button class="filter-btn" onclick="setFilter('personal',this)">Personal</button>
+  </div>
+
+  <div id="manage-list">
+    <div class="loading-spinner"><div class="spinner"></div>Loading...</div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════ FIREBASE CONFIG ════════════════════════════════ -->
+<!-- 
+  ⬇️ REPLACE THIS SECTION WITH YOUR OWN FIREBASE CONFIG
+  Instructions are at the bottom of this file
+-->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  // ════════════════════════════════════════════════
+  // 🔥 PASTE YOUR FIREBASE CONFIG HERE
+  // ════════════════════════════════════════════════
+  const firebaseConfig = {
+    apiKey: "AIzaSyCM1erOns-XcmthmJTCAbabK0BF9l3WMuM",
+    authDomain: "joint-timetable.firebaseapp.com",
+    projectId: "joint-timetable",
+    storageBucket: "joint-timetable.firebasestorage.app",
+    messagingSenderId: "498359594927",
+    appId: "1:498359594927:web:a4bf5ccf3e9212eb24c95a"
+  };
+  // ════════════════════════════════════════════════
+
+  const CONFIGURED = !firebaseConfig.apiKey.includes("PASTE");
+
+  let db = null;
+  let events = [];
+  let presets = [];
+  let unsubEvents = null;
+  let unsubPresets = null;
+
+  if (CONFIGURED) {
+    try {
+      const app = initializeApp(firebaseConfig);
+      db = getFirestore(app);
+      startListeners();
+    } catch(e) {
+      showBanner();
+    }
+  } else {
+    showBanner();
+    loadLocalFallback();
+  }
+
+  function startListeners() {
+    // Events listener
+    const evRef = collection(db, "events");
+    unsubEvents = onSnapshot(query(evRef, orderBy("date"), orderBy("time")), (snap) => {
+      events = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderCalendar();
+      renderUpcoming();
+      renderManage();
+    });
+
+    // Presets listener
+    const prRef = collection(db, "presets");
+    unsubPresets = onSnapshot(prRef, (snap) => {
+      presets = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderPresets();
+    });
+  }
+
+  function loadLocalFallback() {
+    try {
+      events = JSON.parse(localStorage.getItem('jt_events') || '[]');
+      presets = JSON.parse(localStorage.getItem('jt_presets') || '[]');
+    } catch(e) { events = []; presets = []; }
+    renderCalendar();
+    renderUpcoming();
+    renderManage();
+    renderPresets();
+  }
+
+  function saveLocalEvents() {
+    localStorage.setItem('jt_events', JSON.stringify(events));
+  }
+
+  function saveLocalPresets() {
+    localStorage.setItem('jt_presets', JSON.stringify(presets));
+  }
+
+  function showBanner() {
+    const msg = `<div class="firebase-banner">
+      <strong>⚠️ Running in local mode — data won't sync between devices</strong>
+      Follow the setup instructions at the bottom of this HTML file to enable live sync with Firebase.
+    </div>`;
+    const b1 = document.getElementById('firebase-banner-cal');
+    const b2 = document.getElementById('firebase-banner-add');
+    if (b1) b1.innerHTML = msg;
+    if (b2) b2.innerHTML = msg;
+  }
+
+  // ════════ FORM STATE ════════
+  let formState = { person: '', cat: '', saveAsPreset: false };
+
+  window.selectSeg = function(type, val, btn) {
+    const groupId = type === 'person' ? 'person-seg' : 'cat-seg';
+    document.querySelectorAll(`#${groupId} .seg-btn`).forEach(b => {
+      b.className = 'seg-btn';
+    });
+    if (type === 'person') {
+      formState.person = val;
+      const cls = val === 'Angad' ? 'active-angad' : val === 'Nina' ? 'active-nina' : 'active-joint';
+      btn.classList.add(cls);
+    } else {
+      formState.cat = val;
+      btn.classList.add(`active-${val}`);
+    }
+  };
+
+  window.togglePresetSave = function() {
+    formState.saveAsPreset = !formState.saveAsPreset;
+    const sw = document.getElementById('preset-toggle-switch');
+    sw.classList.toggle('on', formState.saveAsPreset);
+  };
+
+  window.submitEvent = async function() {
+    const title = document.getElementById('ev-title').value.trim();
+    const date = document.getElementById('ev-date').value;
+    const time = document.getElementById('ev-time').value;
+    const notes = document.getElementById('ev-notes').value.trim();
+
+    if (!title) { showToast('Please enter a title 📝'); return; }
+    if (!formState.person) { showToast('Please select a person 👤'); return; }
+    if (!formState.cat) { showToast('Please select a category 🏷️'); return; }
+    if (!date) { showToast('Please pick a date 📅'); return; }
+
+    const ev = {
+      title,
+      person: formState.person,
+      cat: formState.cat,
+      date,
+      time: time || '00:00',
+      notes,
+      created: Date.now()
+    };
+
+    if (CONFIGURED && db) {
+      await addDoc(collection(db, "events"), ev);
+      if (formState.saveAsPreset) {
+        const preset = { title, person: formState.person, cat: formState.cat, notes };
+        await addDoc(collection(db, "presets"), preset);
+      }
+    } else {
+      ev.id = 'local_' + Date.now();
+      events.push(ev);
+      saveLocalEvents();
+      if (formState.saveAsPreset) {
+        const preset = { id: 'preset_' + Date.now(), title, person: formState.person, cat: formState.cat, notes };
+        presets.push(preset);
+        saveLocalPresets();
+        renderPresets();
+      }
+      renderCalendar();
+      renderUpcoming();
+      renderManage();
+    }
+
+    // Reset form
+    document.getElementById('ev-title').value = '';
+    document.getElementById('ev-date').value = '';
+    document.getElementById('ev-time').value = '';
+    document.getElementById('ev-notes').value = '';
+    document.querySelectorAll('.seg-btn').forEach(b => b.className = 'seg-btn');
+    formState = { person: '', cat: '', saveAsPreset: false };
+    document.getElementById('preset-toggle-switch').classList.remove('on');
+
+    showToast('Event added! 🎉');
+    showView('calendar');
+  };
+
+  window.deleteEvent = async function(id) {
+    if (CONFIGURED && db && !id.startsWith('local_')) {
+      await deleteDoc(doc(db, "events", id));
+    } else {
+      events = events.filter(e => e.id !== id);
+      saveLocalEvents();
+      renderCalendar();
+      renderUpcoming();
+      renderManage();
+    }
+    showToast('Event deleted 🗑️');
+  };
+
+  window.deletePreset = async function(id, e) {
+    e.stopPropagation();
+    if (CONFIGURED && db && !id.startsWith('preset_')) {
+      await deleteDoc(doc(db, "presets", id));
+    } else {
+      presets = presets.filter(p => p.id !== id);
+      saveLocalPresets();
+      renderPresets();
+    }
+    showToast('Preset removed');
+  };
+
+  window.applyPreset = function(preset) {
+    document.getElementById('ev-title').value = preset.title;
+    document.getElementById('ev-notes').value = preset.notes || '';
+
+    // Set person
+    document.querySelectorAll('#person-seg .seg-btn').forEach(b => {
+      b.className = 'seg-btn';
+      if (b.dataset.val === preset.person) {
+        formState.person = preset.person;
+        const cls = preset.person === 'Angad' ? 'active-angad' : preset.person === 'Nina' ? 'active-nina' : 'active-joint';
+        b.classList.add(cls);
+      }
+    });
+
+    // Set category
+    document.querySelectorAll('#cat-seg .seg-btn').forEach(b => {
+      b.className = 'seg-btn';
+      if (b.dataset.val === preset.cat) {
+        formState.cat = preset.cat;
+        b.classList.add(`active-${preset.cat}`);
+      }
+    });
+
+    showView('add');
+    showToast('Preset loaded ⚡');
+  };
+
+  // ════════ CALENDAR ════════
+  let calYear = new Date().getFullYear();
+  let calMonth = new Date().getMonth();
+  let selectedDay = null;
+
+  window.changeMonth = function(dir) {
+    calMonth += dir;
+    if (calMonth > 11) { calMonth = 0; calYear++; }
+    if (calMonth < 0) { calMonth = 11; calYear--; }
+    renderCalendar();
+  };
+
+  function renderCalendar() {
+    const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    document.getElementById('cal-month-label').textContent = `${months[calMonth]} ${calYear}`;
+
+    const firstDay = new Date(calYear, calMonth, 1).getDay();
+    const startOffset = firstDay === 0 ? 6 : firstDay - 1; // Mon start
+    const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+    const today = new Date();
+    const container = document.getElementById('cal-days');
+    container.innerHTML = '';
+
+    // Empty cells
+    for (let i = 0; i < startOffset; i++) {
+      const cell = document.createElement('div');
+      cell.className = 'cal-day empty';
+      cell.innerHTML = '<div class="day-num"></div>';
+      container.appendChild(cell);
+    }
+
+    // Day cells
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const dayEvents = events.filter(e => e.date === dateStr);
+      const isToday = today.getFullYear() === calYear && today.getMonth() === calMonth && today.getDate() === d;
+      const isSelected = selectedDay === dateStr;
+
+      const cell = document.createElement('div');
+      cell.className = `cal-day${isToday ? ' today' : ''}${isSelected ? ' selected' : ''}`;
+      cell.onclick = () => selectDay(dateStr);
+
+      const numEl = document.createElement('div');
+      numEl.className = 'day-num';
+      numEl.textContent = d;
+      cell.appendChild(numEl);
+
+      if (dayEvents.length > 0) {
+        const dotRow = document.createElement('div');
+        dotRow.className = 'dot-row';
+        dayEvents.slice(0,4).forEach(ev => {
+          const dot = document.createElement('div');
+          dot.className = 'event-dot';
+          dot.style.background = catColor(ev.cat);
+          dotRow.appendChild(dot);
+        });
+        cell.appendChild(dotRow);
+      }
+
+      container.appendChild(cell);
+    }
+
+    if (selectedDay) showDayPanel(selectedDay);
+  }
+
+  function selectDay(dateStr) {
+    selectedDay = selectedDay === dateStr ? null : dateStr;
+    renderCalendar();
+    if (selectedDay) {
+      showDayPanel(selectedDay);
+      document.getElementById('day-panel').classList.add('visible');
+    } else {
+      document.getElementById('day-panel').classList.remove('visible');
+    }
+  }
+
+  function showDayPanel(dateStr) {
+    const d = new Date(dateStr + 'T00:00:00');
+    const label = d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
+    document.getElementById('day-panel-title').textContent = label;
+    const dayEvents = events.filter(e => e.date === dateStr).sort((a,b) => a.time.localeCompare(b.time));
+    const container = document.getElementById('day-events');
+    if (dayEvents.length === 0) {
+      container.innerHTML = '<div style="color:var(--muted);font-family:Nunito,sans-serif;font-size:0.85rem;font-weight:700;padding:8px 0;">No events this day 🌿</div>';
+    } else {
+      container.innerHTML = dayEvents.map(ev => eventCardHTML(ev)).join('');
+    }
+  }
+
+  // ════════ UPCOMING ════════
+  function renderUpcoming() {
+    const todayStr = new Date().toISOString().split('T')[0];
+    const future = events
+      .filter(e => e.date >= todayStr)
+      .sort((a,b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time));
+
+    const container = document.getElementById('upcoming-list');
+    if (future.length === 0) {
+      container.innerHTML = '<div class="empty-state"><div class="emoji">🌟</div><p>No upcoming events yet!<br>Add one in the + tab.</p></div>';
+      return;
+    }
+
+    // Group by date
+    const groups = {};
+    future.forEach(ev => {
+      if (!groups[ev.date]) groups[ev.date] = [];
+      groups[ev.date].push(ev);
+    });
+
+    container.innerHTML = Object.entries(groups).map(([date, evs]) => {
+      const d = new Date(date + 'T00:00:00');
+      const label = d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
+      return `<div class="upcoming-date-group">
+        <div class="upcoming-date-label">${label}</div>
+        ${evs.map(ev => eventCardHTML(ev)).join('')}
+      </div>`;
+    }).join('');
+  }
+
+  // ════════ MANAGE ════════
+  let activeFilter = 'all';
+
+  window.setFilter = function(val, btn) {
+    activeFilter = val;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active-filter'));
+    btn.classList.add('active-filter');
+    renderManage();
+  };
+
+  function renderManage() {
+    let filtered = events;
+    if (activeFilter !== 'all') {
+      filtered = events.filter(e => e.person === activeFilter || e.cat === activeFilter);
+    }
+    filtered = filtered.sort((a,b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time));
+
+    const container = document.getElementById('manage-list');
+    if (filtered.length === 0) {
+      container.innerHTML = '<div class="empty-state"><div class="emoji">📭</div><p>No events found</p></div>';
+      return;
+    }
+    container.innerHTML = filtered.map(ev => eventCardHTML(ev)).join('');
+  }
+
+  // ════════ PRESETS ════════
+  function renderPresets() {
+    const container = document.getElementById('preset-pills');
+    if (presets.length === 0) {
+      container.innerHTML = '<div style="color:var(--muted);font-size:0.8rem;font-family:\'Nunito\',sans-serif;padding:8px 0;">No presets yet — add one below!</div>';
+      return;
+    }
+    container.innerHTML = presets.map(p => `
+      <div class="preset-pill" onclick="applyPreset(${JSON.stringify(p).replace(/"/g,'&quot;')})">
+        <div class="preset-pill-dot" style="background:${catColor(p.cat)}"></div>
+        ${p.title}
+        <span class="preset-delete" onclick="deletePreset('${p.id}',event)">✕</span>
+      </div>
+    `).join('');
+  }
+
+  // ════════ HELPERS ════════
+  function catColor(cat) {
+    return { work: '#ef4444', padel: '#22c55e', personal: '#3b82f6' }[cat] || '#a855f7';
+  }
+
+  function eventCardHTML(ev) {
+    const timeDisplay = ev.time && ev.time !== '00:00'
+      ? new Date(`2000-01-01T${ev.time}`).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+      : '';
+    const personColor = ev.person === 'Angad' ? '#f97316' : ev.person === 'Nina' ? '#ec4899' : '#a855f7';
+    const personChipClass = ev.person === 'Angad' ? 'chip-angad' : ev.person === 'Nina' ? 'chip-nina' : 'chip-joint-person';
+    return `<div class="event-card ${ev.cat}">
+      <div class="event-card-top">
+        <div>
+          <div class="event-title">${ev.title}</div>
+          <div class="event-meta">
+            <span class="event-chip ${personChipClass}">${ev.person}</span>
+            <span class="event-chip chip-${ev.cat}">${ev.cat}</span>
+            ${timeDisplay ? `<span class="event-time">🕐 ${timeDisplay}</span>` : ''}
+          </div>
+          ${ev.notes ? `<div class="event-notes">📝 ${ev.notes}</div>` : ''}
+        </div>
+        <button class="event-delete-btn" onclick="deleteEvent('${ev.id}')">🗑</button>
+      </div>
+    </div>`;
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2200);
+  }
+
+  // Set today's date as default
+  document.getElementById('ev-date').value = new Date().toISOString().split('T')[0];
+
+  // ════════ VIEW SWITCHING ════════
+  window.showView = function(view) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('view-' + view).classList.add('active');
+    document.getElementById('nav-' + view).classList.add('active');
+  };
+
+  // Initial render
+  renderCalendar();
+  renderUpcoming();
+  renderManage();
+  renderPresets();
+
+</script>
+
+<!--
+════════════════════════════════════════════════════════════════
+🔥 HOW TO SET UP FIREBASE (takes about 5 minutes)
+════════════════════════════════════════════════════════════════
+
+1. Go to https://console.firebase.google.com
+2. Click "Add project" → name it "joint-timetable" → Continue through the steps
+3. Once inside your project, click the </> icon (Web app) to register a web app
+4. Give it a nickname (e.g. "timetable") → click Register app
+5. You will see a firebaseConfig block — copy those 6 values
+6. Open this HTML file and paste them into the firebaseConfig section near the bottom
+7. Back in Firebase console → Build → Firestore Database → Create database → Start in test mode → pick your region → Done
+8. Upload this file to your GitHub Pages repo and you are live!
+
+Both of you just need to open the same GitHub Pages URL and all events will sync instantly.
+════════════════════════════════════════════════════════════════
+-->
+</body>
+</html>
